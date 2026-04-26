@@ -22,7 +22,7 @@ services:
     command: >
       sh -c "python manage.py migrate && 
              python seed.py && 
-             gunicorn --bind 0.0.0.0:8000 config.wsgi:application"
+             gunicorn --bind 0.0.0.0:8000 --timeout 120 --workers 2 config.wsgi:application"
     volumes:
       - ./backend:/app
       - backend_media:/app/media
