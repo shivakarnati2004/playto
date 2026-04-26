@@ -1,19 +1,59 @@
-# Python / Django
-backend/venv/
-backend/__pycache__/
-backend/*.pyc
-backend/db.sqlite3
-backend/.env
+# ──────────────────────────────────────────────────────────
+# Playto KYC — .gitignore
+# ──────────────────────────────────────────────────────────
 
-# Node / Frontend
-frontend/node_modules/
-frontend/dist/
+# ─── Python / Django ──────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Virtual environment
+backend/venv/
+.venv/
+venv/
+
+# Django
+backend/db.sqlite3
+backend/media/
+*.log
+
+# Environment files (NEVER commit secrets)
+backend/.env
 frontend/.env
 frontend/.env.local
+.env
 
-# MacOS
-.DS_Store
+# ─── Node / Frontend ─────────────────────────────────────
+node_modules/
+frontend/node_modules/
+frontend/dist/
+frontend/.cache/
+.eslintcache
 
-# IDE
+# ─── IDE / Editor ─────────────────────────────────────────
 .vscode/
 .idea/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+
+# ─── OS ───────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# ─── Docker ───────────────────────────────────────────────
+docker-compose.override.yml
+
+# ─── Misc ─────────────────────────────────────────────────
+*.bak
+*.tmp
+.gemini/
