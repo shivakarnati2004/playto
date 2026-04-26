@@ -6,6 +6,9 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from django.core.mail import send_mail
+from django.conf import settings
+from django.contrib.auth import get_user_model
 
 from .models import Document, KYCSubmission, NotificationEvent
 from .permissions import IsMerchant, IsReviewer
@@ -93,6 +96,17 @@ class MerchantSubmitView(APIView):
                 {'error': True, 'message': str(exc)},
                 status=status.HTTP_400_BAD_REQUEST,
             )
+
+        # Round-robin reviewer assignment
+        User = get_user_model()
+        reviewers = list(User.objects.filter(role='reviewer').order_by('id'))
+        if reviewers:
+            # Count how many are currently assigned to each to pick the one with fewest
+            from django.db.models import Count
+            reviewers_with_counts = User.objects.filter(role='reviewer').annotate(queue_count=Count('reviewed_submissions')).order_by('queue_count', 'id')
+            assigned_reviewer = reviewers_with_counts.first()
+            submission.reviewer = assigned_reviewer
+            submission.save()
 
         _log_notification(
             merchant=request.user,
@@ -272,6 +286,25 @@ class ReviewerSubmissionDetailView(APIView):
                 'timestamp': str(timezone.now()),
             },
         )
+
+        # Send Email Notification
+        if target_state in ['approved', 'rejected', 'more_info_requested']:
+            try:
+                subject = f"Your Playto KYC has been {target_state.replace('_', ' ')}"
+                body = f"Hello {submission.merchant.username},\n\nYour KYC submission status is now: {target_state}.\n"
+                if reason:
+                    body += f"\nReviewer Note: {reason}\n"
+                body += "\nThank you,\nPlayto Team"
+                
+                send_mail(
+                    subject,
+                    body,
+                    settings.DEFAULT_FROM_EMAIL,
+                    [submission.merchant.email],
+                    fail_silently=True,
+                )
+            except Exception:
+                pass
 
         return Response(KYCSubmissionSerializer(submission, context={'request': request}).data)
 

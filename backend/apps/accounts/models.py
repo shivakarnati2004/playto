@@ -12,6 +12,9 @@ class User(AbstractUser):
 
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default=ROLE_MERCHANT)
     phone = models.CharField(max_length=20, blank=True)
+    is_email_verified = models.BooleanField(default=False)
+    otp = models.CharField(max_length=6, blank=True, null=True)
+    otp_created_at = models.DateTimeField(blank=True, null=True)
 
     @property
     def is_merchant(self):

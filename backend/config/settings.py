@@ -110,3 +110,15 @@ LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
+
+# Email settings
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = config('SMTP_HOST', default='smtp.gmail.com')
+EMAIL_PORT = config('SMTP_PORT', default=587, cast=int)
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = config('SMTP_USER', default='')
+EMAIL_HOST_PASSWORD = config('SMTP_PASSWORD', default='')
+DEFAULT_FROM_EMAIL = config('EMAIL_FROM', default=EMAIL_HOST_USER)
+
+OTP_EXPIRY_MINUTES = config('OTP_EXPIRY_MINUTES', default=10, cast=int)
+OTP_LENGTH = config('OTP_LENGTH', default=6, cast=int)
