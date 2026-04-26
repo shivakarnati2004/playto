@@ -1,3 +1,5 @@
+deployed in render wait 10 sec to load the webpage not compltly deployed local can has more features 
+https://playto-k6u6.onrender.com
 # Playto KYC Pipeline & Platform
 
 > A production-grade KYC onboarding system and unified platform for **Playto Pay** and **AutoDM** — enabling Indian agencies and freelancers to submit identity documents, pass compliance review, and start collecting international payments or automating their social presence.
