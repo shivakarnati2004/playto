@@ -8,12 +8,14 @@ A full-stack KYC onboarding system for Playto Pay — allowing Indian agencies a
 
 ## Project Structure
 
+## Project Structure
+
 ```
 playto-kyc/
-├── backend/               # Django project
+├── backend/               # Django project (DRF, PostgreSQL, OTP)
 │   ├── apps/
-│   │   ├── accounts/      # Custom User model, auth endpoints
-│   │   └── kyc/           # Submissions, documents, state machine, notifications
+│   │   ├── accounts/      # Custom User model, OTP generation, Email auth
+│   │   └── kyc/           # State machine, Round-robin assignment, Notifications
 │   ├── config/            # Django settings, urls, wsgi
 │   ├── media/             # Uploaded files (gitignored)
 │   ├── manage.py
@@ -29,6 +31,20 @@ playto-kyc/
 ├── EXPLAINER.md
 └── README.md
 ```
+
+---
+
+## Quick Start (Dockerized)
+
+The absolute easiest way to run the entire stack (PostgreSQL + Django Backend + React Frontend) is using Docker.
+
+```bash
+# Start all services
+docker-compose up --build
+```
+- Frontend: **http://localhost:3000**
+- Backend: **http://localhost:8000**
+- Database: **localhost:5432**
 
 ---
 
@@ -180,6 +196,16 @@ Three layers: size check → extension check → magic byte check. Client conten
 
 ### Auth Isolation
 Merchants have no endpoint that accepts an ID — they always get their own submission. Reviewer endpoints are gated by `IsReviewer`. Role is set at signup and not user-editable. See EXPLAINER.md §4.
+
+---
+
+## 🔥 Bonus Features Implemented
+
+1.  **Docker Orchestration**: Fully containerized backend, frontend, and PostgreSQL via `docker-compose.yml`.
+2.  **Email & OTP Verification**: A secure 6-digit OTP is generated and emailed to merchants on registration. They must verify their email before using the dashboard.
+3.  **Drag-and-Drop Uploads**: The frontend React app features a responsive, interactive drag-and-drop zone for uploading KYC documents (PDF, JPG, PNG).
+4.  **Reviewer Round-Robin Assignment**: When a KYC submission transitions to `submitted`, the backend calculates the active queue of all reviewers and auto-assigns the submission to the reviewer with the lowest workload.
+5.  **Status Update Emails**: Merchants automatically receive an email when their KYC is `approved`, `rejected`, or requires `more_info_requested` — complete with the reviewer's reasoning.
 
 ---
 
