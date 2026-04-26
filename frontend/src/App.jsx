@@ -8,6 +8,7 @@ import SubmissionDetailPage from './pages/reviewer/SubmissionDetailPage'
 import AllSubmissionsPage from './pages/reviewer/AllSubmissionsPage'
 import DemoPage from './pages/DemoPage'
 import PlaytoPayPage from './pages/PlaytoPayPage'
+import AutoDMPage from './pages/AutoDMPage'
 
 function ProtectedRoute({ children, requiredRole }) {
   const { user, isAuthenticated } = useAuth()
@@ -24,6 +25,7 @@ function AppRoutes() {
       {/* Public */}
       <Route path="/"         element={<DemoPage />} />
       <Route path="/pay"      element={<PlaytoPayPage />} />
+      <Route path="/autodm"   element={<AutoDMPage />} />
       <Route path="/login"    element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
 

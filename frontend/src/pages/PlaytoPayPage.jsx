@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { ArrowRight, CheckCircle2, ShieldCheck, Globe, CreditCard, Zap, Smartphone, DollarSign, XCircle, ChevronDown } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import PlaytoFooter from "../components/ui/PlaytoFooter";
 
 export default function PlaytoPayPage() {
   const [openFaq, setOpenFaq] = useState(null);
@@ -28,6 +29,7 @@ export default function PlaytoPayPage() {
             Playto
           </Link>
           <div className="hidden md:flex items-center gap-8 text-sm font-medium text-white/70">
+            <Link to="/autodm" className="hover:text-white transition-colors">AutoDM</Link>
             <a href="#features" className="hover:text-white transition-colors">Features</a>
             <a href="#pricing" className="hover:text-white transition-colors">Pricing</a>
             <a href="#faq" className="hover:text-white transition-colors">FAQ</a>
@@ -329,6 +331,7 @@ export default function PlaytoPayPage() {
         </button>
       </section>
 
+      <PlaytoFooter />
     </main>
   );
 }

@@ -36,6 +36,12 @@
 ### Reviewer Queue — SLA Monitoring & At-Risk Flagging
 ![Reviewer Dashboard](docs/images/reviewer-dashboard.png)
 
+### Playto Pay — Payment Platform
+![Playto Pay](docs/images/playto-pay.png)
+
+### AutoDM — Instagram Automation
+![AutoDM](docs/images/autodm.png)
+
 ---
 
 ## Architecture
@@ -337,13 +343,14 @@ playto-kyc/
 │   └── requirements.txt
 ├── frontend/
 │   ├── src/
-│   │   ├── components/ui/     # PrismaHero, HyperSection, FeaturesSection
+│   │   ├── components/ui/     # PrismaHero, HyperSection, FeaturesSection, PlaytoFooter
 │   │   ├── pages/
 │   │   │   ├── auth/          # Login, Register
 │   │   │   ├── merchant/      # Dashboard, KYC Form (drag-drop)
 │   │   │   ├── reviewer/      # Queue, Submission Detail, All Submissions
-│   │   │   ├── DemoPage.jsx   # Landing page
-│   │   │   └── PlaytoPayPage.jsx  # Playto Pay marketing page
+│   │   │   ├── DemoPage.jsx   # Landing page (video hero + community)
+│   │   │   ├── PlaytoPayPage.jsx  # Playto Pay marketing page
+│   │   │   └── AutoDMPage.jsx # AutoDM feature page
 │   │   ├── api/client.js      # Axios instance with token interceptor
 │   │   └── context/AuthContext.jsx
 │   ├── Dockerfile
