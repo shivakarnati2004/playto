@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from './context/AuthContext'
-import { LoginPage, RegisterPage } from './pages/auth/AuthPages'
+import { LoginPage, RegisterPage, VerifyOTPPage, ForgotPasswordPage, ResetPasswordPage } from './pages/auth/AuthPages'
 import MerchantDashboard from './pages/merchant/DashboardPage'
 import KYCFormPage from './pages/merchant/KYCFormPage'
 import ReviewerQueuePage from './pages/reviewer/QueuePage'
@@ -13,6 +13,12 @@ import AutoDMPage from './pages/AutoDMPage'
 function ProtectedRoute({ children, requiredRole }) {
   const { user, isAuthenticated } = useAuth()
   if (!isAuthenticated) return <Navigate to="/login" replace />
+
+  // If merchant hasn't verified email, force them to verify
+  if (user?.role === 'merchant' && !user?.is_email_verified) {
+    return <Navigate to="/verify-otp" replace />
+  }
+
   if (requiredRole && user?.role !== requiredRole) {
     return <Navigate to={user?.role === 'reviewer' ? '/reviewer/queue' : '/dashboard'} replace />
   }
@@ -28,6 +34,9 @@ function AppRoutes() {
       <Route path="/autodm"   element={<AutoDMPage />} />
       <Route path="/login"    element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
+      <Route path="/verify-otp" element={<VerifyOTPPage />} />
+      <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+      <Route path="/reset-password"  element={<ResetPasswordPage />} />
 
       {/* Merchant */}
       <Route path="/dashboard" element={
@@ -62,4 +71,3 @@ export default function App() {
     </AuthProvider>
   )
 }
-
