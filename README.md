@@ -16,17 +16,16 @@ https://playto-k6u6.onrender.com
 - [Platform Features](#platform-features)
 - [Architecture & Tech Stack](#architecture--tech-stack)
 - [Security & Compliance](#security--compliance)
+- [Key Engineering Decisions](#key-engineering-decisions)
+- [Developer Insights (Q&A)](#developer-insights-qa)
+- [Challenges & Key Thoughts](#challenges--key-thoughts)
 - [Quick Start — Docker](#quick-start--docker)
 - [Quick Start — Local Development](#quick-start--local-development)
 - [Test Accounts](#test-accounts)
 - [Testing Strategy & Execution](#testing-strategy--execution)
 - [API Reference](#api-reference)
-- [Key Engineering Decisions](#key-engineering-decisions)
-- [Bonus Features & Polish](#bonus-features--polish)
-- [Challenges & Overcoming Them](#challenges--overcoming-them)
 - [Deployment Strategy](#deployment-strategy)
-- [Project Structure](#project-structure)
-- [Contact & License](#contact--license)
+- [Contact & Author](#contact--author)
 
 ---
 
@@ -111,14 +110,54 @@ The frontend is built using a modern component library powered by TailwindCSS an
 
 ---
 
+## 🏛 Key Engineering Decisions
+
+1. **State Machine Exclusivity:** Transition logic does not exist in views or serializers. It lives exclusively in `apps/kyc/state_machine.py`. This ensures that a KYC submission cannot accidentally jump from `draft` to `approved` due to a misplaced API parameter.
+2. **Dynamic SLAs:** Flags are not cron-driven. They are dynamically calculated to ensure real-time accuracy and zero stale data.
+3. **Decoupled Architecture:** Using Django as a pure headless API and React via Vite ensures the two ecosystems can scale independently and be hosted on entirely different infrastructures.
+4. **Email Dispatcher:** SMTP configured to send actual emails. Status changes instantly ping the merchant with custom reviewer notes.
+
+---
+
+## 💡 Developer Insights (Q&A)
+
+### What are you most proud of in this submission?
+I am most proud of engineering a highly robust, dual-layer validation and state management architecture that completely eliminates edge cases common in KYC pipelines. By decoupling the state machine from the API views and implementing a three-tier file security check (including binary magic bytes verification), I ensured the system behaves predictably under load while maintaining enterprise-grade security. Furthermore, integrating this rigorous backend with a hyper-fluid, deeply interactive React frontend demonstrates a full-stack mastery that never compromises user experience for data safety.
+
+### What would you improve if you had another week?
+If I had another week, I would implement an event-driven architecture using Redis and Celery to handle email dispatching, webhook notifications, and file scanning entirely in the background. This would free up the Gunicorn worker pool and drastically reduce request latency. I would also integrate an external OCR service (like AWS Textract or Google Cloud Vision) to automatically pre-fill user data from uploaded documents, significantly lowering user friction. Trade-off wise, I chose to prioritize atomic state transitions and synchronous validations for this build to guarantee data integrity first, but moving expensive I/O tasks to background queues would be the most critical next step for scaling.
+
+### Roughly how many hours did you spend on this?
+I spent approximately **35-40 hours** on this project. The time was strategically divided across defining the centralized state machine, hardening the file upload security endpoints, building out the comprehensive test suite (58 live API and unit tests), and polishing the frontend animations to achieve a premium, glassmorphic aesthetic that aligns with top-tier product standards.
+
+---
+
+## 🛠 Challenges & Key Thoughts
+
+Developing a production-ready system of this scale presented several crucial hurdles. Here is a look at my thought process and the strategies employed to overcome them:
+
+**1. Securing the KYC Uploads in a Zero-Trust Environment**
+*The Challenge:* Accepting compliance documents (like PAN or Aadhaar cards) from users is highly dangerous, exposing the server to malware or excessive payload sizes.
+*The Solution:* I built a 3-tier validation script. First, reading `Content-Length` drops payload bombs before they consume memory. Second, extension checks filter out obvious errors. Third—and most importantly—reading the first 8 hex bytes (`Magic Bytes`) ensures the actual binary data matches the expected format. A malicious `.exe` file renamed to `document.pdf` is instantly intercepted and rejected.
+
+**2. Eliminating State Machine Race Conditions**
+*The Challenge:* If two compliance officers review the same ticket concurrently, or a user rapidly retries a submission, the state could corrupt, bypassing mandatory checks.
+*The Solution:* By funneling all actions through a centralized `perform_transition()` dictionary, illegal jumps are caught immediately. This logic runs within atomic database transactions, ensuring that any conflicting state update is rolled back and raised as a `400 Bad Request`. This strict decoupling protects the core business logic.
+
+**3. Cross-Platform Environment Bridging & Docker Stability**
+*The Challenge:* Bridging the Vite dev server and the Django API required precise CORS configurations. When deploying, ensuring the frontend container accurately talked to the backend container without timing out was tricky.
+*The Solution:* Moving to a full Docker-Compose setup standardized the network bridge. By letting an Alpine Nginx container handle frontend routing and reverse-proxying API calls directly to Gunicorn, I eliminated CORS entirely in the production build and ensured a highly stable, timeout-resistant environment.
+
+---
+
 ## 🐳 Quick Start — Docker
 
 The fastest, cleanest way to spin up the entire architecture natively.
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/shivakarnati2004/playto.git
-cd playto
+git clone https://github.com/shivakarnati2004/playto-kyc.git
+cd playto-kyc
 
 # 2. Build and run in detached mode
 docker-compose up -d --build
@@ -229,36 +268,6 @@ python api_test.py
 
 ---
 
-## 🏛 Key Engineering Decisions
-
-1. **State Machine Exclusivity:** Transition logic does not exist in views or serializers. It lives exclusively in `apps/kyc/state_machine.py`. See [EXPLAINER.md](EXPLAINER.md).
-2. **Dynamic SLAs:** Flags are not cron-driven. They are dynamically calculated to ensure real-time accuracy and zero stale data.
-3. **Decoupled Architecture:** Using Django as a pure headless API and React via Vite ensures the two ecosystems can scale independently and be hosted on entirely different infrastructures.
-
----
-
-## ✨ Bonus Features & Polish
-
-- **Email Dispatcher:** SMTP configured to send actual emails. Status changes instantly ping the merchant with custom reviewer notes.
-- **Reviewer Round-Robin:** Zero manual assignments. The system routes work algorithmically to the least-burdened employee.
-- **Drag & Drop:** The UI features HTML5 drag-and-drop file targets with `onDragOver` highlighting.
-- **Responsive Animations:** Framer motion ensures staggered fade-ins and dynamic viewport scaling across all mobile and desktop layouts.
-
----
-
-## 🛠 Challenges & Overcoming Them
-
-**1. Securing the KYC Uploads**
-Accepting compliance documents is highly dangerous. I solved this by implementing a 3-tier validation script. Reading `Content-Length` drops payload bombs, extension checks filter initial errors, and reading the first 8 hex bytes (`Magic Bytes`) ensures the actual binary data matches the expected PDF/JPG formats, neutralizing disguised executables.
-
-**2. State Machine Race Conditions**
-If two reviewers act on the same ticket, state could corrupt. By funneling all actions through a centralized `perform_transition()` dictionary, illegal jumps are caught immediately and raised as atomic 400 Bad Requests.
-
-**3. Cross-Platform Docker Issues**
-Bridging the Vite dev server and the Django API required precise CORS and Proxy setups. Moving to Docker-Compose eliminated this by standardizing network bridging and letting Nginx handle the frontend routing in production builds.
-
----
-
 ## 🚀 Deployment Strategy
 
 **Production ready for Render, Railway, or AWS.**
@@ -267,11 +276,18 @@ The repo includes a `Dockerfile` for both environments and a `docker-compose.yml
 
 ---
 
-## 📝 Contact & License
+## 👨‍💻 Contact & Author
 
-Built exclusively for the **Playto** technical assessment.
-Code structure reflects modern Silicon Valley engineering standards.
+Developed with passion and precision by **Shiva Karnati**.
+
+- 📞 **Phone:** +91-9014266763
+- 📧 **Email:** [shivakarnati2004@gmail.com](mailto:shivakarnati2004@gmail.com)
+- 💼 **LinkedIn:** [linkedin.com/in/shiva-karnati123](https://www.linkedin.com/in/shiva-karnati123)
+- 🐙 **GitHub:** [github.com/shivakarnati2004](https://github.com/shivakarnati2004)
+- 🌐 **Portfolio:** [Elite Developer Port](https://elite-developer-port-6j6r.bolt.host/)
 
 ```text
+Built exclusively for the Playto technical assessment.
+Code structure reflects modern Silicon Valley engineering standards.
 End of Documentation.
 ```
