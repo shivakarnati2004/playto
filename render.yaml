@@ -48,4 +48,3 @@ services:
 databases:
   - name: playto-kyc-db
     databaseName: playto
-    user: postgres
