@@ -32,12 +32,13 @@ def create_user(username, password, role, email=''):
         'email': email or f'{username}@playto.test',
         'role': role,
     })
+    # Always reset password so demo credentials work after every deploy
+    user.set_password(password)
+    user.save()
     if created:
-        user.set_password(password)
-        user.save()
         print(f"  + Created {role}: {username}")
     else:
-        print(f"  * Exists:  {role}: {username}")
+        print(f"  * Updated {role}: {username}")
     token, _ = Token.objects.get_or_create(user=user)
     return user, token
 
