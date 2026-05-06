@@ -1,5 +1,5 @@
 services:
-  # Single service: Django serves both the API and the React frontend
+  # ── Backend: Django API + also serves React SPA as fallback ──
   - type: web
     name: playto-kyc
     env: python
@@ -44,6 +44,17 @@ services:
         value: "false"
       - key: NODE_VERSION
         value: "18"
+
+  # ── Frontend: React static site (also works standalone) ──
+  - type: web
+    name: playto-k6u6
+    env: static
+    buildCommand: "cd frontend && npm install && npm run build"
+    staticPublishPath: "./frontend/dist"
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
 
 databases:
   - name: playto-kyc-db

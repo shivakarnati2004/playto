@@ -1,4 +1,4 @@
-deployed in render wait 10 sec to load the webpage not compltly deployed local can has more features 
+ there is some issues in render soe times working and sometimes invalid credential ,so deploy ment has not done i thing plz run local u can see i have developed everything and more ,deployed in render wait 10 sec to load the webpage not compltly deployed local can has more features 
 https://playto-k6u6.onrender.com
 # Playto KYC Pipeline & Platform
 
