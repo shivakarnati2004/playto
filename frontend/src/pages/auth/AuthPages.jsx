@@ -179,7 +179,23 @@ export function LoginPage() {
             <button
               key={u}
               type="button"
-              onClick={() => setForm({ username: u, password: 'password123' })}
+              onClick={async () => {
+                setForm({ username: u, password: 'password123' })
+                setError('')
+                setLoading(true)
+                try {
+                  const user = await login(u, 'password123')
+                  if (!user.is_email_verified && user.role === 'merchant') {
+                    navigate('/verify-otp', { replace: true })
+                  } else {
+                    navigate(user.role === 'reviewer' ? '/reviewer/queue' : '/dashboard', { replace: true })
+                  }
+                } catch (err) {
+                  setError(err.response?.data?.message || 'Invalid credentials.')
+                } finally {
+                  setLoading(false)
+                }
+              }}
               className="px-4 py-3 rounded-xl bg-white/5 hover:bg-brand-300/10 border border-white/5 hover:border-brand-300/30 text-xs font-body text-left transition-colors group"
             >
               <span className="font-display font-bold text-white group-hover:text-brand-300 block mb-1">{label}</span>

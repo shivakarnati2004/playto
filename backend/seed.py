@@ -31,6 +31,7 @@ def create_user(username, password, role, email=''):
     user, created = User.objects.get_or_create(username=username, defaults={
         'email': email or f'{username}@playto.test',
         'role': role,
+        'is_email_verified': True,
     })
     # Always reset password so demo credentials work after every deploy
     user.set_password(password)
