@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { ArrowRight, ShieldCheck, TrendingUp, Zap } from "lucide-react";
+import { Link } from "react-router-dom";
 
 export function HyperSection() {
   return (
@@ -45,13 +46,13 @@ export function HyperSection() {
             </p>
             
             <div className="flex flex-wrap items-center gap-4 mb-16">
-              <button className="group bg-black text-white px-6 py-3.5 rounded-full font-semibold flex items-center gap-2 hover:scale-105 transition-all shadow-lg active:scale-95">
+              <Link to="/register" className="group bg-black text-white px-6 py-3.5 rounded-full font-semibold flex items-center gap-2 hover:scale-105 transition-all shadow-lg active:scale-95">
                 Get Started
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </button>
-              <button className="px-6 py-3.5 rounded-full border-2 border-black/20 text-black font-semibold hover:border-black/40 hover:scale-105 transition-all active:scale-95">
+              </Link>
+              <Link to="/login" className="px-6 py-3.5 rounded-full border-2 border-black/20 text-black font-semibold hover:border-black/40 hover:scale-105 transition-all active:scale-95 text-center inline-block">
                 View Demo
-              </button>
+              </Link>
             </div>
 
             <div className="flex items-center gap-4">

@@ -5,16 +5,12 @@ import axios from 'axios'
 // 2. In production (Render), use the backend service URL
 // 3. Locally, use relative path (Vite proxy handles it)
 function getBaseURL() {
-  // Build-time env var from Render
+  // Build-time env var
   if (import.meta.env.VITE_API_BASE) {
     return `${import.meta.env.VITE_API_BASE.replace(/\/+$/, '')}/api/v1`
   }
-  // Production detection: if not on localhost, use the Render backend URL
-  const host = window.location.hostname
-  if (host !== 'localhost' && host !== '127.0.0.1') {
-    return 'https://playto-kyc.onrender.com/api/v1'
-  }
-  // Local development: Vite proxy forwards /api to localhost:8000
+  // Unified service architecture: frontend is served by Django,
+  // so the API is always on the same host under /api/v1
   return '/api/v1'
 }
 

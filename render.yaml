@@ -45,17 +45,6 @@ services:
       - key: NODE_VERSION
         value: "18"
 
-  # ── Frontend: React static site (also works standalone) ──
-  - type: web
-    name: playto-k6u6
-    env: static
-    buildCommand: "cd frontend && npm install && npm run build"
-    staticPublishPath: "./frontend/dist"
-    routes:
-      - type: rewrite
-        source: /*
-        destination: /index.html
-
 databases:
   - name: playto-kyc-db
     databaseName: playto
