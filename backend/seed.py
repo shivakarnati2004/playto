@@ -33,8 +33,9 @@ def create_user(username, password, role, email=''):
         'role': role,
         'is_email_verified': True,
     })
-    # Always reset password so demo credentials work after every deploy
+    # Always reset password and verify email so demo credentials work after every deploy
     user.set_password(password)
+    user.is_email_verified = True
     user.save()
     if created:
         print(f"  + Created {role}: {username}")
