@@ -1,9 +1,15 @@
 services:
+  # Single service: Django serves both the API and the React frontend
   - type: web
-    name: playto-kyc-backend
+    name: playto-kyc
     env: python
-    buildCommand: "cd backend && pip install -r requirements.txt && python manage.py collectstatic --noinput && python manage.py migrate && python seed.py"
-    startCommand: "cd backend && gunicorn config.wsgi:application"
+    buildCommand: >
+      cd frontend && npm install && npm run build &&
+      cd ../backend && pip install -r requirements.txt &&
+      python manage.py collectstatic --noinput &&
+      python manage.py migrate &&
+      python seed.py
+    startCommand: "cd backend && gunicorn --bind 0.0.0.0:$PORT --timeout 120 --workers 2 config.wsgi:application"
     envVars:
       - key: DATABASE_URL
         fromDatabase:
@@ -34,22 +40,10 @@ services:
         value: "10"
       - key: OTP_LENGTH
         value: "6"
-      - key: JWT_SECRET
-        generateValue: true
       - key: DB_SSL
         value: "false"
-
-  - type: web
-    name: playto-kyc-frontend
-    env: static
-    buildCommand: "cd frontend && npm install && npm run build"
-    staticPublishPath: "./frontend/dist"
-    envVars:
-      - key: VITE_API_BASE
-        fromService:
-          type: web
-          name: playto-kyc-backend
-          envVarKey: RENDER_EXTERNAL_URL
+      - key: NODE_VERSION
+        value: "18"
 
 databases:
   - name: playto-kyc-db
