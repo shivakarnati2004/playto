@@ -213,4 +213,38 @@ This setup ensures that what runs on the developer's Windows machine is bit-for-
 
 ---
 
+## 7. Unified Deployment Architecture
+
+**Live Deployment:** [https://playtopay-x2wy.onrender.com/](https://playtopay-x2wy.onrender.com/)
+
+A major challenge in deploying modern SPAs with backend APIs is managing CORS and separate hosting domains. We initially experienced 401 Unauthorized errors and routing mismatches when hosting the React SPA and Django API as separate services on Render.
+
+To build a more resilient production environment, the platform was re-architected into a **Unified Service Deployment** using a multi-stage Docker build.
+
+### The Multi-Stage Pipeline
+
+```dockerfile
+# Stage 1: Build React Frontend
+FROM node:18 AS frontend-builder
+WORKDIR /app/frontend
+COPY frontend/package*.json ./
+RUN npm install
+COPY frontend/ ./
+RUN npm run build
+...
+# Stage 2: Django Backend encapsulates the build
+COPY --from=frontend-builder /app/frontend/dist /app/frontend/dist
+```
+
+1. **Frontend Compilation:** In Stage 1, we pull a Node image, install dependencies, and run `vite build`. This produces a production-ready `dist` folder.
+2. **Backend Serving:** In Stage 2, the Python container copies the compiled `dist` folder into its own workspace. 
+3. **Django Catch-All Routing:** In `config/urls.py`, a catch-all route `re_path(r'^(?P<path>.*)$', serve_react)` directs any non-API traffic to Django's built-in file response.
+
+### Benefits of the Unified Model:
+* **Zero CORS Configuration:** Because the frontend and backend share the exact same origin (`https://playtopay-x2wy.onrender.com/`), cross-origin resource sharing restrictions are completely bypassed. API requests dynamically map to `/api/v1` natively.
+* **Single Render Service Cost:** Instead of paying for a Static Web Service and a Web Service on Render, everything is consolidated into a single Docker instance, reducing overhead and cost.
+* **Atomic Deployments:** The frontend and backend codebases are guaranteed to be in sync. A bad frontend build fails the entire Docker image, preventing a scenario where a new frontend deploys against an older backend API.
+
+---
+
 *End of Deep-Dive.*
